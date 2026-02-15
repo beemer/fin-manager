@@ -65,7 +65,8 @@ public class EmbeddedServer {
         // Root endpoint
         server.createContext("/", exchange -> handleRoot(exchange));
         
-        server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(10));
+        // Use virtual threads for better scalability (Java 21 feature)
+        server.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
         server.start();
     }
 
