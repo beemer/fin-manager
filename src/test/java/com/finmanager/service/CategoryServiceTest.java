@@ -88,4 +88,10 @@ public class CategoryServiceTest {
         assertNotNull(deleted);
         assertFalse(deleted.isActive());
     }
+
+    @Test
+    public void testBrokenBuild() {
+        // This test intentionally fails to validate branch protection
+        fail("This build is intentionally broken to test branch protection rules!");
+    }
 }
