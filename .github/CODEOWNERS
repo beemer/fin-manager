@@ -1,0 +1,13 @@
+# CODEOWNERS file for fin-manager repository
+# This file defines code ownership and required reviews
+
+# All source files require review
+/src/ @beemer
+
+# Configuration files require review  
+/pom.xml @beemer
+/.github/ @beemer
+/.gitignore @beemer
+
+# Documentation
+/*.md @beemer
