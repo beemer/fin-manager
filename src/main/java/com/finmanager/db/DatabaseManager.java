@@ -28,51 +28,59 @@ public class DatabaseManager {
     private void initializeDatabase() {
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.execute(
-                "CREATE TABLE IF NOT EXISTS categories (" +
-                "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  name TEXT NOT NULL UNIQUE," +
-                "  type TEXT NOT NULL," +
-                "  color TEXT," +
-                "  active BOOLEAN DEFAULT 1" +
-                ")"
+                """
+                CREATE TABLE IF NOT EXISTS categories (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  name TEXT NOT NULL UNIQUE,
+                  type TEXT NOT NULL,
+                  color TEXT,
+                  active BOOLEAN DEFAULT 1
+                )
+                """
             );
 
             stmt.execute(
-                "CREATE TABLE IF NOT EXISTS expenses (" +
-                "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  date DATE NOT NULL," +
-                "  amount REAL NOT NULL," +
-                "  category_id INTEGER NOT NULL," +
-                "  description TEXT," +
-                "  is_recurring_instance BOOLEAN DEFAULT 0," +
-                "  FOREIGN KEY(category_id) REFERENCES categories(id)" +
-                ")"
+                """
+                CREATE TABLE IF NOT EXISTS expenses (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  date DATE NOT NULL,
+                  amount REAL NOT NULL,
+                  category_id INTEGER NOT NULL,
+                  description TEXT,
+                  is_recurring_instance BOOLEAN DEFAULT 0,
+                  FOREIGN KEY(category_id) REFERENCES categories(id)
+                )
+                """
             );
 
             stmt.execute(
-                "CREATE TABLE IF NOT EXISTS recurring_expenses (" +
-                "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  category_id INTEGER NOT NULL," +
-                "  amount REAL NOT NULL," +
-                "  description TEXT," +
-                "  frequency TEXT NOT NULL," +
-                "  start_date DATE NOT NULL," +
-                "  end_date DATE," +
-                "  active BOOLEAN DEFAULT 1," +
-                "  FOREIGN KEY(category_id) REFERENCES categories(id)" +
-                ")"
+                """
+                CREATE TABLE IF NOT EXISTS recurring_expenses (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  category_id INTEGER NOT NULL,
+                  amount REAL NOT NULL,
+                  description TEXT,
+                  frequency TEXT NOT NULL,
+                  start_date DATE NOT NULL,
+                  end_date DATE,
+                  active BOOLEAN DEFAULT 1,
+                  FOREIGN KEY(category_id) REFERENCES categories(id)
+                )
+                """
             );
 
             stmt.execute(
-                "CREATE TABLE IF NOT EXISTS investment_entries (" +
-                "  id INTEGER PRIMARY KEY AUTOINCREMENT," +
-                "  date DATE NOT NULL," +
-                "  amount REAL NOT NULL," +
-                "  currency TEXT DEFAULT 'USD'," +
-                "  exchange_rate REAL DEFAULT 1.0," +
-                "  description TEXT," +
-                "  is_recurring BOOLEAN DEFAULT 0" +
-                ")"
+                """
+                CREATE TABLE IF NOT EXISTS investment_entries (
+                  id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  date DATE NOT NULL,
+                  amount REAL NOT NULL,
+                  currency TEXT DEFAULT 'USD',
+                  exchange_rate REAL DEFAULT 1.0,
+                  description TEXT,
+                  is_recurring BOOLEAN DEFAULT 0
+                )
+                """
             );
 
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_expenses_date ON expenses(date)");
