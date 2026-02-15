@@ -1,16 +1,37 @@
 package com.finmanager.service;
 
 import com.finmanager.model.Category;
+import com.finmanager.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import static org.junit.Assert.*;
 
 public class CategoryServiceTest {
     private CategoryService categoryService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         categoryService = CategoryService.getInstance();
+        // Clean up any existing test data
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM expenses WHERE category_id IN (SELECT id FROM categories WHERE name LIKE 'Test%' OR name LIKE '%Original%' OR name LIKE '%Updated%' OR name LIKE '%Delete%' OR name = 'Leisure Expenses')");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Test%' OR name LIKE '%Original%' OR name LIKE '%Updated%' OR name LIKE '%Delete%' OR name = 'Leisure Expenses'");
+        }
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        // Clean up test data after each test
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM expenses WHERE category_id IN (SELECT id FROM categories WHERE name LIKE 'Test%' OR name LIKE '%Original%' OR name LIKE '%Updated%' OR name LIKE '%Delete%' OR name = 'Leisure Expenses')");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Test%' OR name LIKE '%Original%' OR name LIKE '%Updated%' OR name LIKE '%Delete%' OR name = 'Leisure Expenses'");
+        }
     }
 
     @Test

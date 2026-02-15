@@ -1,2 +1,2 @@
 # fin-manager
-Avants Personal Finance Too
+Avants Personal Finance Tool

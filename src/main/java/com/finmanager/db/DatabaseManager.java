@@ -7,7 +7,7 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 public class DatabaseManager {
-    private static final String DB_URL = "jdbc:sqlite:fin-manager.db";
+    private static final String DB_URL = System.getProperty("db.url", "jdbc:sqlite:fin-manager.db");
     private static DatabaseManager instance;
 
     private DatabaseManager() {

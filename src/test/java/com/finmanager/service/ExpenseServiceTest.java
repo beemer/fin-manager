@@ -2,10 +2,15 @@ package com.finmanager.service;
 
 import com.finmanager.model.Expense;
 import com.finmanager.model.Category;
+import com.finmanager.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.YearMonth;
 
@@ -15,12 +20,31 @@ public class ExpenseServiceTest {
     private Long testCategoryId;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         expenseService = ExpenseService.getInstance();
         categoryService = CategoryService.getInstance();
         
-        Category testCat = new Category("Test Expense Category", "LEISURE", "#FF5733");
+        // Clean up any existing test data first
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM expenses WHERE description LIKE 'Test%' OR description LIKE 'Exp%' OR description IS NULL");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Test%'");
+        }
+        
+        // Create new category with unique name
+        String categoryName = "Test Expense Category_" + System.nanoTime();
+        Category testCat = new Category(categoryName, "LEISURE", "#FF5733");
         testCategoryId = categoryService.createCategory(testCat);
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        // Clean up test data after each test
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM expenses WHERE description LIKE 'Test%' OR description LIKE 'Exp%' OR description IS NULL");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Test%'");
+        }
     }
 
     @Test

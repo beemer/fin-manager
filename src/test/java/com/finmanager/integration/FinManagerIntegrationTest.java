@@ -5,10 +5,15 @@ import com.finmanager.model.Expense;
 import com.finmanager.model.RecurringExpense;
 import com.finmanager.model.InvestmentEntry;
 import com.finmanager.service.*;
+import com.finmanager.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.Year;
@@ -21,12 +26,33 @@ public class FinManagerIntegrationTest {
     private AnalyticsService analyticsService;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         categoryService = CategoryService.getInstance();
         expenseService = ExpenseService.getInstance();
         recurringService = RecurringExpenseService.getInstance();
         investmentService = InvestmentService.getInstance();
         analyticsService = AnalyticsService.getInstance();
+        
+        // Clean up any existing test data
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            try { stmt.executeUpdate("DELETE FROM expenses WHERE description LIKE '%Rent%' OR description LIKE '%Movie%' OR description LIKE '%Internet%'"); } catch (Exception e) {}
+            try { stmt.executeUpdate("DELETE FROM recurring_expenses WHERE description LIKE '%Bill%'"); } catch (Exception e) {}
+            try { stmt.executeUpdate("DELETE FROM investments WHERE description LIKE '%Stock%'"); } catch (Exception e) {}
+            try { stmt.executeUpdate("DELETE FROM categories WHERE name IN ('Rent', 'Entertainment', 'Savings', 'Tech Stocks', 'Index Funds')"); } catch (Exception e) {}
+        }
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        // Clean up test data after each test
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM expenses WHERE description LIKE '%Rent%' OR description LIKE '%Movie%' OR description LIKE '%Internet%'");
+            try { stmt.executeUpdate("DELETE FROM recurring_expenses WHERE description LIKE '%Bill%'"); } catch (Exception e) {}
+            try { stmt.executeUpdate("DELETE FROM investments WHERE description LIKE '%Stock%'"); } catch (Exception e) {}
+            stmt.executeUpdate("DELETE FROM categories WHERE name IN ('Rent', 'Entertainment', 'Savings', 'Tech Stocks', 'Index Funds')");
+        }
     }
 
     @Test

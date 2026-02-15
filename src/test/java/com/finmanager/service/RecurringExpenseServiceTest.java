@@ -2,10 +2,15 @@ package com.finmanager.service;
 
 import com.finmanager.model.RecurringExpense;
 import com.finmanager.model.Category;
+import com.finmanager.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.*;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDate;
 
 public class RecurringExpenseServiceTest {
@@ -14,12 +19,31 @@ public class RecurringExpenseServiceTest {
     private Long testCategoryId;
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         recurringService = RecurringExpenseService.getInstance();
         categoryService = CategoryService.getInstance();
         
-        Category testCat = new Category("Recurring Test Cat", "UTILITIES", "#00FF00");
+        // Clean up any existing test data first
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM recurring_expenses WHERE description LIKE 'Test%' OR description LIKE 'Monthly%'");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Recurring%'");
+        }
+        
+        // Create new category with unique name
+        String categoryName = "Recurring Test Cat_" + System.nanoTime();
+        Category testCat = new Category(categoryName, "UTILITIES", "#00FF00");
         testCategoryId = categoryService.createCategory(testCat);
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        // Clean up test data after each test
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate("DELETE FROM recurring_expenses WHERE description LIKE 'Test%' OR description LIKE 'Monthly%'");
+            stmt.executeUpdate("DELETE FROM categories WHERE name LIKE 'Recurring%'");
+        }
     }
 
     @Test

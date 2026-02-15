@@ -1,8 +1,14 @@
 package com.finmanager.service;
 
+import com.finmanager.db.DatabaseManager;
 import org.junit.Test;
 import org.junit.Before;
+import org.junit.After;
 import static org.junit.Assert.*;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class AnalyticsServiceIntegrationTest {
     private AnalyticsService analyticsService;
@@ -14,6 +20,15 @@ public class AnalyticsServiceIntegrationTest {
         analyticsService = AnalyticsService.getInstance();
         categoryService = CategoryService.getInstance();
         expenseService = ExpenseService.getInstance();
+    }
+
+    @After
+    public void tearDown() throws SQLException {
+        // Clean up test data
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM expenses WHERE description = 'Test Analytics'");
+        }
     }
 
     @Test
