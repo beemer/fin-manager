@@ -7,11 +7,11 @@ com\finmanager\api\RecurringExpenseAPI.class
 com\finmanager\util\Logger.class
 com\finmanager\api\CategoryAPI$ApiResponse.class
 com\finmanager\api\ExpenseAPI.class
-com\finmanager\HelloWorld.class
 com\finmanager\model\Expense.class
 com\finmanager\db\DatabaseManager.class
 com\finmanager\service\CategoryService.class
 com\finmanager\util\ExportUtil.class
+com\finmanager\config\SwaggerConfig.class
 com\finmanager\model\RecurringExpense.class
 com\finmanager\model\Builder$CategoryBuilder.class
 com\finmanager\api\InvestmentAPI$ProjectionResponse.class

@@ -5,6 +5,7 @@ C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\util\AppConfig.jav
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\model\Category.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\api\ExpenseAPI.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\api\RecurringExpenseAPI.java
+C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\config\SwaggerConfig.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\Main.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\util\DataInitializer.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\api\InvestmentAPI.java
@@ -17,7 +18,6 @@ C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\model\Expense.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\db\DatabaseManager.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\server\EmbeddedServer.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\service\InvestmentService.java
-C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\HelloWorld.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\model\InvestmentEntry.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\util\ExportUtil.java
 C:\work\IdeaProjects\fin-manager\src\main\java\com\finmanager\api\ApiResponse.java

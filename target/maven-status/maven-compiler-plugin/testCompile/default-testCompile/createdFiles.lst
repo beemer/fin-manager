@@ -6,7 +6,6 @@ com\finmanager\service\ExpenseServiceTest.class
 com\finmanager\service\AnalyticsServiceTest.class
 com\finmanager\service\CategoryServiceTest.class
 com\finmanager\service\InvestmentServiceTest.class
-com\finmanager\HelloWorldTest.class
 com\finmanager\util\CurrencyConverterTest.class
 com\finmanager\util\DateUtilsTest.class
 com\finmanager\util\ValidationUtilTest.class
