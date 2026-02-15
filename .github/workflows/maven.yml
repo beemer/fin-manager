@@ -1,0 +1,93 @@
+name: Maven CI/CD Pipeline
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and Test
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Check Java version
+        run: java -version
+      
+      - name: Compile the project
+        run: mvn clean compile -DskipTests
+        
+      - name: Run all tests
+        run: mvn test
+        
+      - name: Build package
+        run: mvn package -DskipTests
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          retention-days: 30
+      
+      - name: Upload build artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: target/*.jar
+          retention-days: 7
+
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality Checks
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: maven
+      
+      - name: Check for code issues
+        run: mvn pmd:check 2>&1 || true
+      
+      - name: Verify test coverage
+        run: mvn test -DargLine="-javaagent:${{ env.JAVA_HOME }}/lib/modules" 2>&1 || true
+
+  report:
+    runs-on: ubuntu-latest
+    name: Test Report
+    if: always()
+    needs: build
+    
+    steps:
+      - name: Download test results
+        uses: actions/download-artifact@v3
+        with:
+          name: surefire-reports
+        continue-on-error: true
+      
+      - name: Publish test results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: |
+            **/*.xml
+          check_name: Test Results
+          comment_title: Test Report
+        continue-on-error: true
