@@ -62,10 +62,11 @@ public class EmbeddedServer {
         // Health check
         server.createContext("/api/health", exchange -> handleHealth(exchange));
         
-        // Root endpoint
-        server.createContext("/", exchange -> handleRoot(exchange));
+        // Static files and SPA fallback (must be last as it catches all)
+        server.createContext("/", exchange -> handleStatic(exchange));
         
-        server.setExecutor(java.util.concurrent.Executors.newFixedThreadPool(10));
+        // Use virtual threads for better scalability (Java 21 feature)
+        server.setExecutor(java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor());
         server.start();
     }
 
@@ -73,6 +74,76 @@ public class EmbeddedServer {
         if (server != null) {
             server.stop(0);
         }
+    }
+
+    private void handleStatic(HttpExchange exchange) throws IOException {
+        String path = exchange.getRequestURI().getPath();
+        
+        // Block API routes and Swagger paths from being handled as static files
+        if (path.startsWith("/api/") || path.startsWith("/api-docs") || path.startsWith("/swagger-ui")) {
+            sendResponse(exchange, 404, "{\"error\": \"Not found\"}");
+            return;
+        }
+
+        // Try to serve the requested file
+        if (serveFile(exchange, path)) {
+            return;
+        }
+
+        // If file not found and it's not a direct file request, serve index.html for SPA routing
+        if (!path.contains(".")) {
+            serveFile(exchange, "/index.html");
+        } else {
+            sendResponse(exchange, 404, "{\"error\": \"Not found\"}");
+        }
+    }
+
+    private boolean serveFile(HttpExchange exchange, String path) throws IOException {
+        try {
+            String filePath = "public" + (path.equals("/") ? "/index.html" : path);
+            File file = new File(filePath);
+
+            if (!file.exists()) {
+                return false;
+            }
+
+            if (file.isDirectory()) {
+                file = new File(filePath + "/index.html");
+                if (!file.exists()) {
+                    return false;
+                }
+            }
+
+            String contentType = getContentType(file.getName());
+            exchange.getResponseHeaders().set("Content-Type", contentType);
+            exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+
+            FileInputStream fis = new FileInputStream(file);
+            byte[] content = fis.readAllBytes();
+            fis.close();
+
+            exchange.sendResponseHeaders(200, content.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(content);
+            os.close();
+
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    private String getContentType(String filename) {
+        if (filename.endsWith(".html")) return "text/html";
+        if (filename.endsWith(".css")) return "text/css";
+        if (filename.endsWith(".js")) return "application/javascript";
+        if (filename.endsWith(".json")) return "application/json";
+        if (filename.endsWith(".png")) return "image/png";
+        if (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) return "image/jpeg";
+        if (filename.endsWith(".gif")) return "image/gif";
+        if (filename.endsWith(".svg")) return "image/svg+xml";
+        if (filename.endsWith(".woff") || filename.endsWith(".woff2")) return "font/woff2";
+        return "application/octet-stream";
     }
 
     private void handleRoot(HttpExchange exchange) throws IOException {
