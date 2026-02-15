@@ -1,6 +1,7 @@
 package com.finmanager.server;
 
 import com.finmanager.api.*;
+import com.finmanager.config.SwaggerConfig;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -53,6 +54,10 @@ public class EmbeddedServer {
         // Analytics endpoints
         server.createContext("/api/analytics/breakdown", exchange -> handleAnalyticsBreakdown(exchange));
         server.createContext("/api/analytics/trend", exchange -> handleAnalyticsTrend(exchange));
+        
+        // Swagger/OpenAPI endpoints
+        server.createContext("/api-docs", exchange -> handleApiDocs(exchange));
+        server.createContext("/swagger-ui", exchange -> handleSwaggerUI(exchange));
         
         // Health check
         server.createContext("/api/health", exchange -> handleHealth(exchange));
@@ -296,5 +301,48 @@ public class EmbeddedServer {
             }
         }
         return null;
+    }
+
+    private void handleApiDocs(HttpExchange exchange) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "application/json");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        String response = SwaggerConfig.generateOpenAPIJson();
+        sendResponse(exchange, 200, response);
+    }
+
+    private void handleSwaggerUI(HttpExchange exchange) throws IOException {
+        exchange.getResponseHeaders().set("Content-Type", "text/html");
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+        String html = generateSwaggerUI();
+        sendResponse(exchange, 200, html);
+    }
+
+    private String generateSwaggerUI() {
+        return "<!DOCTYPE html>" +
+            "<html>" +
+            "<head>" +
+            "  <title>Fin-Manager API Documentation</title>" +
+            "  <meta charset=\"utf-8\"/>" +
+            "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" +
+            "  <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.css\">" +
+            "</head>" +
+            "<body>" +
+            "  <div id=\"swagger-ui\"></div>" +
+            "  <script src=\"https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.min.js\"></script>" +
+            "  <script>" +
+            "    window.onload = function() {" +
+            "      SwaggerUIBundle({" +
+            "        url: '/api-docs'," +
+            "        dom_id: '#swagger-ui'," +
+            "        presets: [" +
+            "          SwaggerUIBundle.presets.apis," +
+            "          SwaggerUIBundle.SwaggerUIStandalonePreset" +
+            "        ]," +
+            "        layout: 'StandaloneLayout'" +
+            "      })" +
+            "    }" +
+            "  </script>" +
+            "</body>" +
+            "</html>";
     }
 }
