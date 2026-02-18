@@ -2,6 +2,7 @@ package com.finmanager.server;
 
 import com.finmanager.api.*;
 import com.finmanager.config.SwaggerConfig;
+import com.finmanager.util.Logger;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -176,10 +177,12 @@ public class EmbeddedServer {
     }
 
     private void handleCategories(HttpExchange exchange) throws IOException {
+        Logger.debug(EmbeddedServer.class, "[GET /api/categories] Fetching all categories");
         if ("GET".equals(exchange.getRequestMethod())) {
             String response = categoryAPI.getAllCategories();
             sendResponse(exchange, 200, response);
         } else if ("POST".equals(exchange.getRequestMethod())) {
+            Logger.debug(EmbeddedServer.class, "[POST /api/categories] Creating new category");
             String body = getRequestBody(exchange);
             String response = categoryAPI.createCategory(body);
             sendResponse(exchange, 201, response);
@@ -204,17 +207,23 @@ public class EmbeddedServer {
     }
 
     private void handleExpenses(HttpExchange exchange) throws IOException {
-        if ("GET".equals(exchange.getRequestMethod())) {
-            String query = exchange.getRequestURI().getQuery();
+        String method = exchange.getRequestMethod();
+        String query = exchange.getRequestURI().getQuery();
+        Logger.debug(EmbeddedServer.class, "[" + method + " /api/expenses] Query: " + query);
+        
+        if ("GET".equals(method)) {
             String response;
             if (query != null && query.contains("month")) {
                 String month = extractParam(query, "month");
+                Logger.debug(EmbeddedServer.class, "  → Fetching expenses for month: " + month);
                 response = expenseAPI.getExpensesByMonth(month);
             } else {
+                Logger.warn(EmbeddedServer.class, "  → Missing month parameter");
                 response = "{\"error\": \"month parameter required\"}";
             }
             sendResponse(exchange, 200, response);
-        } else if ("POST".equals(exchange.getRequestMethod())) {
+        } else if ("POST".equals(method)) {
+            Logger.debug(EmbeddedServer.class, "  → Creating new expense");
             String body = getRequestBody(exchange);
             String response = expenseAPI.createExpense(body);
             sendResponse(exchange, 201, response);
