@@ -6,6 +6,18 @@
 
 ## Development Workflow
 
+### ⚠️ CRITICAL: Protected Branch Rule
+
+**`main` branch is protected and requires PRs for all changes.**
+
+**DO NOT push directly to main.** All changes must:
+1. Be made on a feature/bugfix branch
+2. Be pushed to that branch on GitHub
+3. Have a PR opened for review
+4. Be merged via the PR interface
+
+Attempting direct push to `main` will be rejected.
+
 ### Feature Branch & Pull Request Process
 
 When working on features or changes:
