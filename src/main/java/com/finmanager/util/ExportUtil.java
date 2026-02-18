@@ -37,7 +37,7 @@ public class ExportUtil {
                 writer.println(line);
             }
         } catch (IOException e) {
-            Logger.error("Failed to export expenses", e);
+            Logger.error(ExportUtil.class, "Failed to export expenses", e);
         }
     }
 
@@ -60,7 +60,7 @@ public class ExportUtil {
                 writer.println(line);
             }
         } catch (IOException e) {
-            Logger.error("Failed to export investments", e);
+            Logger.error(ExportUtil.class, "Failed to export investments", e);
         }
     }
 

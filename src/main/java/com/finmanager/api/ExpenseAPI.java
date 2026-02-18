@@ -2,6 +2,7 @@ package com.finmanager.api;
 
 import com.finmanager.model.Expense;
 import com.finmanager.service.ExpenseService;
+import com.finmanager.util.Logger;
 import com.google.gson.Gson;
 
 import java.time.LocalDate;
@@ -18,11 +19,14 @@ public class ExpenseAPI {
     }
 
     public String getExpensesByMonth(String yearMonth) {
+        Logger.debug(ExpenseAPI.class, "getExpensesByMonth() called with: " + yearMonth);
         try {
             YearMonth ym = YearMonth.parse(yearMonth);
             List<Expense> expenses = expenseService.getExpensesByMonth(ym);
+            Logger.debug(ExpenseAPI.class, "  → Found " + expenses.size() + " expenses for " + yearMonth);
             return gson.toJson(expenses);
         } catch (Exception e) {
+            Logger.error(ExpenseAPI.class, "Error fetching expenses for month " + yearMonth, e);
             return gson.toJson(new CategoryAPI.ApiError("Invalid month format: " + yearMonth));
         }
     }
@@ -39,12 +43,15 @@ public class ExpenseAPI {
     }
 
     public String createExpense(String json) {
+        Logger.debug(ExpenseAPI.class, "createExpense() called");
         try {
             Expense expense = gson.fromJson(json, Expense.class);
             Long id = expenseService.createExpense(expense);
             expense.setId(id);
+            Logger.debug(ExpenseAPI.class, "  → Created expense with id: " + id);
             return gson.toJson(expense);
         } catch (Exception e) {
+            Logger.error(ExpenseAPI.class, "Error creating expense", e);
             return gson.toJson(new CategoryAPI.ApiError("Failed to create expense: " + e.getMessage()));
         }
     }
