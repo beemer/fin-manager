@@ -3,6 +3,7 @@ package com.finmanager.server;
 import com.finmanager.api.*;
 import com.finmanager.config.SwaggerConfig;
 import com.finmanager.util.Logger;
+import com.finmanager.util.GsonUtil;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -28,7 +29,7 @@ public class EmbeddedServer {
         this.recurringAPI = new RecurringExpenseAPI();
         this.investmentAPI = new InvestmentAPI();
         this.analyticsAPI = new AnalyticsAPI();
-        this.gson = new Gson();
+        this.gson = GsonUtil.getInstance();
     }
 
     public void start() throws IOException {
@@ -259,20 +260,26 @@ public class EmbeddedServer {
     }
 
     private void handleRecurring(HttpExchange exchange) throws IOException {
-        if ("GET".equals(exchange.getRequestMethod())) {
+        String method = exchange.getRequestMethod();
+        Logger.debug(EmbeddedServer.class, "[" + method + " /api/recurring]");
+        
+        if ("GET".equals(method)) {
             String response = recurringAPI.getAllRecurringExpenses();
             sendResponse(exchange, 200, response);
-        } else if ("POST".equals(exchange.getRequestMethod())) {
+        } else if ("POST".equals(method)) {
+            Logger.debug(EmbeddedServer.class, "  → Creating new recurring expense");
             String body = getRequestBody(exchange);
             String response = recurringAPI.createRecurringExpense(body);
             sendResponse(exchange, 201, response);
-        } else if ("PUT".equals(exchange.getRequestMethod())) {
+        } else if ("PUT".equals(method)) {
+            Logger.debug(EmbeddedServer.class, "  → Updating recurring expense");
             String body = getRequestBody(exchange);
             String response = recurringAPI.updateRecurringExpense(body);
             sendResponse(exchange, 200, response);
-        } else if ("DELETE".equals(exchange.getRequestMethod())) {
+        } else if ("DELETE".equals(method)) {
             String query = exchange.getRequestURI().getQuery();
             Long id = extractId(query);
+            Logger.debug(EmbeddedServer.class, "  → Deleting recurring expense with id: " + id);
             String response = recurringAPI.deleteRecurringExpense(id);
             sendResponse(exchange, 200, response);
         } else {

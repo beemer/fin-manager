@@ -9,6 +9,7 @@ public class Expense {
     private Double amount;
     private Long categoryId;
     private String description;
+    private Long recurringId;
     private boolean isRecurringInstance;
 
     public Expense() {}
@@ -35,6 +36,9 @@ public class Expense {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public Long getRecurringId() { return recurringId; }
+    public void setRecurringId(Long recurringId) { this.recurringId = recurringId; }
 
     public boolean isRecurringInstance() { return isRecurringInstance; }
     public void setRecurringInstance(boolean recurringInstance) { isRecurringInstance = recurringInstance; }

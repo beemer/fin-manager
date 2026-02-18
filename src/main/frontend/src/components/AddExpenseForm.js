@@ -13,6 +13,9 @@ const AddExpenseForm = ({ onExpenseAdded, onCancel }) => {
     amount: '',
     categoryId: '',
     description: '',
+    isRecurring: false,
+    frequency: 'MONTHLY',
+    endDate: '',
   });
 
   useEffect(() => {
@@ -39,10 +42,10 @@ const AddExpenseForm = ({ onExpenseAdded, onCancel }) => {
   }, []);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'categoryId' ? parseInt(value) : value,
+      [name]: type === 'checkbox' ? checked : (name === 'categoryId' ? parseInt(value) : value),
     }));
     setError(null);
     setSuccess(null);
@@ -66,41 +69,90 @@ const AddExpenseForm = ({ onExpenseAdded, onCancel }) => {
     setError(null);
 
     try {
-      console.log('[AddExpenseForm] Submitting expense:', formData);
-      const response = await fetch('/api/expense', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          date: formData.date,
-          amount: parseFloat(formData.amount),
+      if (formData.isRecurring) {
+        // Submit as recurring expense
+        console.log('[AddExpenseForm] Submitting recurring expense:', formData);
+        const payload = {
           categoryId: formData.categoryId,
+          amount: parseFloat(formData.amount),
           description: formData.description,
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('[AddExpenseForm] Expense created:', result);
-        setSuccess('Expense added successfully!');
+          frequency: formData.frequency,
+          startDate: formData.date,
+          endDate: formData.endDate || null,
+        };
         
-        // Reset form
-        setFormData({
-          date: new Date().toISOString().split('T')[0],
-          amount: '',
-          categoryId: '',
-          description: '',
+        const response = await fetch('/api/recurring', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
         });
 
-        // Call onExpenseAdded callback after a short delay
-        setTimeout(() => {
-          onExpenseAdded();
-        }, 500);
+        if (response.ok) {
+          const result = await response.json();
+          console.log('[AddExpenseForm] Recurring expense created:', result);
+          setSuccess('Recurring expense created successfully!');
+          
+          // Reset form
+          setFormData({
+            date: new Date().toISOString().split('T')[0],
+            amount: '',
+            categoryId: '',
+            description: '',
+            isRecurring: false,
+            frequency: 'MONTHLY',
+            endDate: '',
+          });
+
+          setTimeout(() => {
+            onExpenseAdded();
+          }, 500);
+        } else {
+          const text = await response.text();
+          console.error('[AddExpenseForm] Error response:', text);
+          setError('Failed to create recurring expense: ' + text);
+        }
       } else {
-        const text = await response.text();
-        console.error('[AddExpenseForm] Error response:', text);
-        setError('Failed to create expense: ' + text);
+        // Submit as one-time expense
+        console.log('[AddExpenseForm] Submitting one-time expense:', formData);
+        const response = await fetch('/api/expense', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            date: formData.date,
+            amount: parseFloat(formData.amount),
+            categoryId: formData.categoryId,
+            description: formData.description,
+          }),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log('[AddExpenseForm] Expense created:', result);
+          setSuccess('Expense added successfully!');
+          
+          // Reset form
+          setFormData({
+            date: new Date().toISOString().split('T')[0],
+            amount: '',
+            categoryId: '',
+            description: '',
+            isRecurring: false,
+            frequency: 'MONTHLY',
+            endDate: '',
+          });
+
+          setTimeout(() => {
+            onExpenseAdded();
+          }, 500);
+        } else {
+          const text = await response.text();
+          console.error('[AddExpenseForm] Error response:', text);
+          setError('Failed to create expense: ' + text);
+        }
       }
     } catch (err) {
       console.error('[AddExpenseForm] Error:', err);
@@ -189,6 +241,51 @@ const AddExpenseForm = ({ onExpenseAdded, onCancel }) => {
               required
             />
           </div>
+
+          <div className="form-group">
+            <label htmlFor="isRecurring" className="checkbox-label">
+              <input
+                type="checkbox"
+                id="isRecurring"
+                name="isRecurring"
+                checked={formData.isRecurring}
+                onChange={handleInputChange}
+                className="form-check-input"
+              />
+              <span>Make this a recurring expense</span>
+            </label>
+          </div>
+
+          {formData.isRecurring && (
+            <>
+              <div className="form-group">
+                <label htmlFor="frequency">Recurrence Frequency</label>
+                <select
+                  id="frequency"
+                  name="frequency"
+                  value={formData.frequency}
+                  onChange={handleInputChange}
+                  className="form-control"
+                >
+                  <option value="MONTHLY">Monthly</option>
+                  <option value="YEARLY">Yearly (Jan 1st)</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="endDate">End Date (Optional)</label>
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleInputChange}
+                  className="form-control"
+                />
+                <small className="text-muted">Leave blank for indefinite recurrence</small>
+              </div>
+            </>
+          )}
 
           <div className="form-actions">
             <button

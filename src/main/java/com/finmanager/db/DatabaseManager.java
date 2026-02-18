@@ -47,8 +47,10 @@ public class DatabaseManager {
                   amount REAL NOT NULL,
                   category_id INTEGER NOT NULL,
                   description TEXT,
+                  recurring_id INTEGER,
                   is_recurring_instance BOOLEAN DEFAULT 0,
-                  FOREIGN KEY(category_id) REFERENCES categories(id)
+                  FOREIGN KEY(category_id) REFERENCES categories(id),
+                  FOREIGN KEY(recurring_id) REFERENCES recurring_expenses(id)
                 )
                 """
             );

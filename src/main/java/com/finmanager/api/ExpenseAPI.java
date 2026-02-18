@@ -3,6 +3,7 @@ package com.finmanager.api;
 import com.finmanager.model.Expense;
 import com.finmanager.service.ExpenseService;
 import com.finmanager.util.Logger;
+import com.finmanager.util.GsonUtil;
 import com.google.gson.Gson;
 
 import java.time.LocalDate;
@@ -15,7 +16,7 @@ public class ExpenseAPI {
 
     public ExpenseAPI() {
         this.expenseService = ExpenseService.getInstance();
-        this.gson = new Gson();
+        this.gson = GsonUtil.getInstance();
     }
 
     public String getExpensesByMonth(String yearMonth) {
