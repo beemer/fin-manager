@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import AddExpenseForm from './AddExpenseForm';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -7,35 +8,37 @@ const Dashboard = () => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
+
+  const fetchExpenses = async () => {
+    try {
+      console.log('[Dashboard] Fetching expenses...');
+      // Use current month for the expenses query
+      const now = new Date();
+      const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      
+      const response = await fetch(`/api/expenses?month=${month}`);
+      console.log('[Dashboard] Response status:', response.status);
+      
+      if (response.ok) {
+        const data = await response.json();
+        console.log('[Dashboard] Expenses data:', data);
+        setExpenses(Array.isArray(data) ? data : []);
+        setError(null);
+      } else {
+        const text = await response.text();
+        console.error('[Dashboard] Error response:', text);
+        setError('Failed to fetch expenses');
+      }
+    } catch (err) {
+      console.error('[Dashboard] Error:', err);
+      setError('Error connecting to backend: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchExpenses = async () => {
-      try {
-        console.log('[Dashboard] Fetching expenses...');
-        // Use current month for the expenses query
-        const now = new Date();
-        const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-        
-        const response = await fetch(`/api/expenses?month=${month}`);
-        console.log('[Dashboard] Response status:', response.status);
-        
-        if (response.ok) {
-          const data = await response.json();
-          console.log('[Dashboard] Expenses data:', data);
-          setExpenses(Array.isArray(data) ? data : []);
-        } else {
-          const text = await response.text();
-          console.error('[Dashboard] Error response:', text);
-          setError('Failed to fetch expenses');
-        }
-      } catch (err) {
-        console.error('[Dashboard] Error:', err);
-        setError('Error connecting to backend: ' + err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchExpenses();
   }, []);
 
@@ -60,7 +63,15 @@ const Dashboard = () => {
 
       <div className="dashboard-content">
         <div className="container-fluid mt-4">
-          <h2>Dashboard</h2>
+          <div className="d-flex justify-content-between align-items-center mb-4">
+            <h2>Dashboard</h2>
+            <button
+              className="btn btn-primary"
+              onClick={() => setShowAddExpenseForm(true)}
+            >
+              + Add Expense
+            </button>
+          </div>
           
           {error && <div className="alert alert-danger">{error}</div>}
           {loading && <div className="alert alert-info">Loading...</div>}
@@ -137,6 +148,16 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {showAddExpenseForm && (
+        <AddExpenseForm
+          onExpenseAdded={() => {
+            setShowAddExpenseForm(false);
+            fetchExpenses();
+          }}
+          onCancel={() => setShowAddExpenseForm(false)}
+        />
+      )}
     </div>
   );
 };
