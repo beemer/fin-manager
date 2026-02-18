@@ -2,6 +2,8 @@ package com.finmanager.api;
 
 import com.finmanager.model.InvestmentEntry;
 import com.finmanager.service.InvestmentService;
+import com.finmanager.util.Logger;
+import com.finmanager.util.GsonUtil;
 import com.google.gson.Gson;
 
 import java.time.Year;
@@ -13,7 +15,7 @@ public class InvestmentAPI {
 
     public InvestmentAPI() {
         this.investmentService = InvestmentService.getInstance();
-        this.gson = new Gson();
+        this.gson = GsonUtil.getInstance();
     }
 
     public String getAllInvestments() {

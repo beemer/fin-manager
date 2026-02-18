@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import AddExpenseForm from './AddExpenseForm';
+import MonthSelector from './MonthSelector';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -9,13 +10,17 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showAddExpenseForm, setShowAddExpenseForm] = useState(false);
-
-  const fetchExpenses = async () => {
-    try {
-      console.log('[Dashboard] Fetching expenses...');
-      // Use current month for the expenses query
+  const [selectedMonth, setSelectedMonth] = useState(
+    () => {
       const now = new Date();
-      const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+  );
+
+  const fetchExpenses = async (month) => {
+    try {
+      console.log('[Dashboard] Fetching expenses for month:', month);
+      setLoading(true);
       
       const response = await fetch(`/api/expenses?month=${month}`);
       console.log('[Dashboard] Response status:', response.status);
@@ -39,8 +44,8 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    fetchExpenses();
-  }, []);
+    fetchExpenses(selectedMonth);
+  }, [selectedMonth]);
 
   const totalExpenses = expenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
 
@@ -72,6 +77,11 @@ const Dashboard = () => {
               + Add Expense
             </button>
           </div>
+
+          <MonthSelector 
+            selectedMonth={selectedMonth} 
+            onMonthChange={setSelectedMonth} 
+          />
           
           {error && <div className="alert alert-danger">{error}</div>}
           {loading && <div className="alert alert-info">Loading...</div>}

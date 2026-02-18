@@ -2,6 +2,8 @@ package com.finmanager.api;
 
 import com.finmanager.model.Category;
 import com.finmanager.service.CategoryService;
+import com.finmanager.util.Logger;
+import com.finmanager.util.GsonUtil;
 import com.google.gson.Gson;
 
 import java.util.List;
@@ -12,7 +14,7 @@ public class CategoryAPI {
 
     public CategoryAPI() {
         this.categoryService = CategoryService.getInstance();
-        this.gson = new Gson();
+        this.gson = GsonUtil.getInstance();
     }
 
     public String getAllCategories() {

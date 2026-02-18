@@ -12,8 +12,8 @@ import java.sql.Statement;
 public abstract class BaseTest {
     @BeforeClass
     public static void setupTestDatabase() throws Exception {
-        // Use in-memory SQLite database for tests
-        System.setProperty("db.url", "jdbc:sqlite::memory:");
+        // Use H2 in-memory database for tests
+        System.setProperty("db.url", "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE");
         
         // Reset the DatabaseManager singleton
         Field instance = DatabaseManager.class.getDeclaredField("instance");
@@ -32,7 +32,7 @@ public abstract class BaseTest {
             // Drop all tables
             stmt.execute("DROP TABLE IF EXISTS expenses");
             stmt.execute("DROP TABLE IF EXISTS recurring_expenses");
-            stmt.execute("DROP TABLE IF EXISTS investments");
+            stmt.execute("DROP TABLE IF EXISTS investment_entries");
             stmt.execute("DROP TABLE IF EXISTS categories");
         } catch (SQLException e) {
             // Ignore errors during cleanup
