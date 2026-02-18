@@ -101,8 +101,27 @@ public class EmbeddedServer {
     private boolean serveFile(HttpExchange exchange, String path) throws IOException {
         try {
             String filePath = "public" + (path.equals("/") ? "/index.html" : path);
+            
+            // First try loading from classpath (in JAR)
+            InputStream resourceStream = getClass().getClassLoader().getResourceAsStream(filePath);
+            if (resourceStream != null) {
+                String contentType = getContentType(filePath);
+                exchange.getResponseHeaders().set("Content-Type", contentType);
+                exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+                
+                byte[] content = resourceStream.readAllBytes();
+                resourceStream.close();
+                
+                exchange.sendResponseHeaders(200, content.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(content);
+                os.close();
+                
+                return true;
+            }
+            
+            // Fallback to filesystem (for development)
             File file = new File(filePath);
-
             if (!file.exists()) {
                 return false;
             }
