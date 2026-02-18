@@ -17,12 +17,12 @@ public class DataInitializer {
             categoryService.createCategory(new Category("Kids", "KIDS", "#FFFF00"));
             categoryService.createCategory(new Category("Investments", "INVESTMENTS", "#FF00FF"));
             
-            Logger.getInstance().info("Sample categories created");
+            Logger.info("Sample categories created");
         }
     }
 
     public static void cleanupOldData() {
         DatabaseManager.getInstance().cleanupOldData();
-        Logger.getInstance().info("Old data cleaned up (data older than 3 years)");
+        Logger.info("Old data cleaned up (data older than 3 years)");
     }
 }
