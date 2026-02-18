@@ -3,6 +3,8 @@ const API_BASE_URL = '/api';
 class ApiClient {
   async request(endpoint, options = {}) {
     const url = `${API_BASE_URL}${endpoint}`;
+    console.log(`[API] ${options.method || 'GET'} ${url}`);
+    
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -14,7 +16,11 @@ class ApiClient {
         headers,
       });
 
+      console.log(`[API] Response: ${response.status}`);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[API] Error: ${response.status} - ${errorText}`);
         throw new Error(`API Error: ${response.status}`);
       }
 
@@ -22,9 +28,11 @@ class ApiClient {
         return null;
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`[API] Success:`, data);
+      return data;
     } catch (error) {
-      console.error('API request failed:', error);
+      console.error('[API] Request failed:', error);
       throw error;
     }
   }
