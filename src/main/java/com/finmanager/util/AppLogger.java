@@ -1,15 +1,16 @@
 package com.finmanager.util;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Convenience wrapper for SLF4J logging.
  * Delegates to SLF4J for actual logging implementation.
  */
-public class Logger {
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(Logger.class);
+public class AppLogger {
+    private static final Logger logger = LoggerFactory.getLogger(AppLogger.class);
 
-    private Logger() {
+    private AppLogger() {
         // Utility class
     }
 
@@ -36,5 +37,14 @@ public class Logger {
     public static void trace(String message) {
         logger.trace(message);
     }
-}
 
+    public void setConsoleOutput(boolean enable) {
+        this.consoleOutput = enable;
+    }
+
+    public void close() {
+        if (logWriter != null) {
+            logWriter.close();
+        }
+    }
+}

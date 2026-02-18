@@ -1,25 +1,28 @@
 package com.finmanager;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.finmanager.db.DatabaseManager;
 import com.finmanager.server.EmbeddedServer;
 
 public class Main {
+    private static final Logger logger = LoggerFactory.getLogger(Main.class);
+
     public static void main(String[] args) {
-        System.out.println("fin-manager starting...");
+        logger.info("fin-manager starting...");
         
         // Initialize database
         DatabaseManager.getInstance();
-        System.out.println("Database initialized");
+        logger.info("Database initialized");
         
         // Start server
         EmbeddedServer server = new EmbeddedServer();
         try {
             server.start();
-            System.out.println("fin-manager API server running on http://localhost:8080");
-            System.out.println("Press Ctrl+C to stop");
+            logger.info("fin-manager API server running on http://localhost:8080");
+            logger.info("Press Ctrl+C to stop");
         } catch (Exception e) {
-            System.err.println("Failed to start server: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("Failed to start server: " + e.getMessage(), e);
         }
     }
 }
