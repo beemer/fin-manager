@@ -134,10 +134,17 @@ public class RecurringExpenseService {
         expense.setDescription(rs.getString("description"));
         expense.setFrequency(RecurringExpense.Frequency.valueOf(rs.getString("frequency")));
         expense.setStartDate(LocalDate.parse(rs.getString("start_date")));
+        
         String endDate = rs.getString("end_date");
         if (endDate != null) {
             expense.setEndDate(LocalDate.parse(endDate));
         }
+        
+        String lastGenerated = rs.getString("last_generated_date");
+        if (lastGenerated != null) {
+            expense.setLastGeneratedDate(LocalDate.parse(lastGenerated));
+        }
+        
         expense.setActive(rs.getBoolean("active"));
         return expense;
     }
