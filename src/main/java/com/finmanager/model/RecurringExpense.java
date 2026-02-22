@@ -14,6 +14,7 @@ public class RecurringExpense {
     private Frequency frequency;
     private LocalDate startDate;
     private LocalDate endDate;
+    private LocalDate lastGeneratedDate;
     private boolean active;
 
     public RecurringExpense() {}
@@ -48,6 +49,9 @@ public class RecurringExpense {
 
     public LocalDate getEndDate() { return endDate; }
     public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+
+    public LocalDate getLastGeneratedDate() { return lastGeneratedDate; }
+    public void setLastGeneratedDate(LocalDate lastGeneratedDate) { this.lastGeneratedDate = lastGeneratedDate; }
 
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }

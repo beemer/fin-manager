@@ -261,8 +261,26 @@ public class EmbeddedServer {
 
     private void handleRecurring(HttpExchange exchange) throws IOException {
         String method = exchange.getRequestMethod();
-        Logger.debug(EmbeddedServer.class, "[" + method + " /api/recurring]");
+        String path = exchange.getRequestURI().getPath();
+        Logger.debug(EmbeddedServer.class, "[" + method + " " + path + "]");
         
+        // Handle generation endpoints
+        if (path.matches(".*/api/recurring/\\d+/generate") && "POST".equals(method)) {
+            Long id = extractIdFromPath(path, "/api/recurring/", "/generate");
+            Logger.debug(EmbeddedServer.class, "  → Generating instances for recurring expense with id: " + id);
+            String response = recurringAPI.generateForRecurring(id);
+            sendResponse(exchange, 200, response);
+            return;
+        }
+        
+        if ("/api/recurring/generate-all".equals(path) && "POST".equals(method)) {
+            Logger.debug(EmbeddedServer.class, "  → Generating instances for all recurring expenses");
+            String response = recurringAPI.generateAll();
+            sendResponse(exchange, 200, response);
+            return;
+        }
+        
+        // Handle main recurring endpoints
         if ("GET".equals(method)) {
             String response = recurringAPI.getAllRecurringExpenses();
             sendResponse(exchange, 200, response);
@@ -396,6 +414,20 @@ public class EmbeddedServer {
             }
         }
         return null;
+    }
+
+    private Long extractIdFromPath(String path, String prefix, String suffix) {
+        try {
+            int startIndex = path.indexOf(prefix) + prefix.length();
+            int endIndex = path.indexOf(suffix, startIndex);
+            if (endIndex == -1) {
+                endIndex = path.length();
+            }
+            String idStr = path.substring(startIndex, endIndex);
+            return Long.parseLong(idStr);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String extractParam(String query, String param) {

@@ -65,6 +65,7 @@ public class DatabaseManager {
                   frequency TEXT NOT NULL,
                   start_date DATE NOT NULL,
                   end_date DATE,
+                  last_generated_date DATE,
                   active BOOLEAN DEFAULT 1,
                   FOREIGN KEY(category_id) REFERENCES categories(id)
                 )
@@ -89,6 +90,14 @@ public class DatabaseManager {
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_recurring_category ON recurring_expenses(category_id)");
             stmt.execute("CREATE INDEX IF NOT EXISTS idx_investments_date ON investment_entries(date)");
+
+            // Migration: Add last_generated_date column if it doesn't exist
+            try {
+                stmt.execute("SELECT last_generated_date FROM recurring_expenses LIMIT 1");
+            } catch (SQLException e) {
+                // Column doesn't exist, add it
+                stmt.execute("ALTER TABLE recurring_expenses ADD COLUMN last_generated_date DATE");
+            }
 
         } catch (SQLException e) {
             e.printStackTrace();
