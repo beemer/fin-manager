@@ -20,7 +20,7 @@ Feature: Recurring Expense Creation
     And I set end date to "2026-12-31"
     And I submit the form
     Then the recurring expense should be created
-    And the submission should go to /api/recurring endpoint
+    And the submission should go to "/api/recurring" endpoint
 
   Scenario: Create yearly recurring expense
     When I enter expense amount "1200"
@@ -44,5 +44,5 @@ Feature: Recurring Expense Creation
     And I select category "Utilities"
     And I don't check the recurring checkbox
     And I submit the form
-    Then the submission should go to /api/expense endpoint
+    Then the submission should go to "/api/expense" endpoint
     And the expense should be created immediately

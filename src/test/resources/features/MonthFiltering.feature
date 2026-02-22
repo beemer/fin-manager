@@ -24,5 +24,5 @@ Feature: Month-Based Expense Filtering
 
   Scenario: API request includes month parameter
     When I select a specific month "2026-02"
-    Then the API request should include query parameter month=2026-02
+    Then the API request should include query parameter "2026-02"
     And the response should contain expenses only from that month
