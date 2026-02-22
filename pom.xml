@@ -100,6 +100,14 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.13</version>
         </dependency>
+
+        <!-- Playwright for UI Testing (E2E tests) -->
+        <dependency>
+            <groupId>com.microsoft.playwright</groupId>
+            <artifactId>playwright</artifactId>
+            <version>1.40.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -114,12 +122,33 @@
                     <release>21</release>
                 </configuration>
             </plugin>
+            <!-- Clean up test database files -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>3.3.2</version>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}</directory>
+                            <includes>
+                                <include>test-*.db</include>
+                            </includes>
+                            <followSymlinks>false</followSymlinks>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
                     <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <!-- Exclude UI tests from normal test runs (use -P ui-tests to run them) -->
+                    <excludes>
+                        <exclude>**/*UITest.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -202,4 +231,51 @@
             </resource>
         </resources>
     </build>
+
+    <!-- UI Test Profile -->
+    <profiles>
+        <profile>
+            <id>ui-tests</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <version>3.2.5</version>
+                        <configuration>
+                            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                            <!-- Run only UI test classes -->
+                            <includes>
+                                <include>**/*UITest.java</include>
+                            </includes>
+                        </configuration>
+                    </plugin>
+                    <!-- Pre-test: Start embedded server for UI tests -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>3.1.0</version>
+                        <executions>
+                            <execution>
+                                <id>start-server-for-ui-tests</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                                <configuration>
+                                    <mainClass>com.finmanager.Main</mainClass>
+                                    <classpathScope>test</classpathScope>
+                                    <async>true</async>
+                                    <asyncDestroyOnShutdown>true</asyncDestroyOnShutdown>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

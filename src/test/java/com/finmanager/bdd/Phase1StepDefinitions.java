@@ -22,8 +22,29 @@ import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
+import java.io.IOException;
 
 public class Phase1StepDefinitions {
+    // Static block to clean up orphaned test databases
+    static {
+        try {
+            java.nio.file.DirectoryStream<java.nio.file.Path> stream = 
+                java.nio.file.Files.newDirectoryStream(
+                    java.nio.file.Paths.get("."), 
+                    "test-*.db"
+                );
+            for (java.nio.file.Path file : stream) {
+                try {
+                    java.nio.file.Files.deleteIfExists(file);
+                } catch (IOException e) {
+                    System.err.println("Warning: Could not delete " + file + ": " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            // Ignore if no test databases exist
+        }
+    }
+    
     private CategoryService categoryService;
     private ExpenseService expenseService;
     private RecurringExpenseService recurringExpenseService;
@@ -39,12 +60,13 @@ public class Phase1StepDefinitions {
     private List<Expense> fetchedExpenses;
     private Long createdRecurringExpenseId;
     private Long createdExpenseId;
+    private String currentDbFile; // Track database file for cleanup
 
     @Before
     public void setupTestDatabase() throws Exception {
         // Use temporary file-based SQLite database for better reliability
-        String tempDb = "test-" + System.currentTimeMillis() + ".db";
-        System.setProperty("db.url", "jdbc:sqlite:" + tempDb);
+        currentDbFile = "test-" + System.currentTimeMillis() + ".db";
+        System.setProperty("db.url", "jdbc:sqlite:" + currentDbFile);
         
         // Reset DatabaseManager singleton
         Field dbInstance = DatabaseManager.class.getDeclaredField("instance");
@@ -95,13 +117,17 @@ public class Phase1StepDefinitions {
             // Ignore cleanup errors
         }
         
-        // Delete temporary database file
-        if (dbUrl.startsWith("jdbc:sqlite:") && !dbUrl.contains(":memory:")) {
-            String dbFile = dbUrl.replace("jdbc:sqlite:", "");
+        // Delete temporary database file - use stored path first, then fallback
+        String dbFileToDelete = currentDbFile;
+        if (dbFileToDelete == null && dbUrl.startsWith("jdbc:sqlite:")) {
+            dbFileToDelete = dbUrl.replace("jdbc:sqlite:", "");
+        }
+        
+        if (dbFileToDelete != null && !dbFileToDelete.isEmpty()) {
             try {
-                java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(dbFile));
+                java.nio.file.Files.deleteIfExists(java.nio.file.Paths.get(dbFileToDelete));
             } catch (Exception e) {
-                // Ignore file deletion errors
+                System.err.println("Warning: Failed to delete test database: " + dbFileToDelete);
             }
         }
     }
