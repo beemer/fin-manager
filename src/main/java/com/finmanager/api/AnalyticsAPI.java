@@ -20,8 +20,8 @@ public class AnalyticsAPI {
     public String getCategoryBreakdown(String yearMonth) {
         try {
             YearMonth ym = YearMonth.parse(yearMonth);
-            Map<String, Double> breakdown = analyticsService.getCategoryBreakdown(ym);
-            return gson.toJson(breakdown);
+            Map<String, Object> response = analyticsService.getCategoryBreakdown(ym);
+            return gson.toJson(response);
         } catch (Exception e) {
             return gson.toJson(new CategoryAPI.ApiError("Invalid month format"));
         }

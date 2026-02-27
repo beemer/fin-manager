@@ -23,18 +23,23 @@ public class AnalyticsService {
         return instance;
     }
 
-    public Map<String, Double> getCategoryBreakdown(YearMonth yearMonth) {
+    public Map<String, Object> getCategoryBreakdown(YearMonth yearMonth) {
+        Map<String, Object> response = new LinkedHashMap<>();
         Map<String, Double> breakdown = new LinkedHashMap<>();
+        Map<String, String> colors = new HashMap<>();
         
         List<Category> categories = categoryService.getAllCategories();
         for (Category category : categories) {
             Double total = expenseService.getTotalExpensesByCategoryAndMonth(category.getId(), yearMonth);
             if (total > 0) {
                 breakdown.put(category.getName(), total);
+                colors.put(category.getName(), category.getColor());
             }
         }
         
-        return breakdown;
+        response.put("breakdown", breakdown);
+        response.put("colors", colors);
+        return response;
     }
 
     public Map<String, Double> getYearlyTrendByCategory(int year) {
