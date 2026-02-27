@@ -78,7 +78,7 @@ public class CategoryServiceTest {
     }
 
     @Test
-    public void testDeleteCategory() {
+    public void testDeleteCategory() throws SQLException {
         Category category = new Category("Delete Test", "KIDS", "#0000FF");
         Long id = categoryService.createCategory(category);
         

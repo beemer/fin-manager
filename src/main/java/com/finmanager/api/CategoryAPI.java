@@ -53,7 +53,8 @@ public class CategoryAPI {
             categoryService.deleteCategory(id);
             return gson.toJson(new ApiResponse("Category deleted successfully"));
         } catch (Exception e) {
-            return gson.toJson(new ApiError("Failed to delete category: " + e.getMessage()));
+            Logger.error(CategoryAPI.class, "Failed to delete category: " + id, e);
+            return gson.toJson(new ApiError(e.getMessage()));
         }
     }
 
