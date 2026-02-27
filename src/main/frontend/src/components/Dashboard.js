@@ -4,6 +4,7 @@ import AddExpenseForm from './AddExpenseForm';
 import MonthSelector from './MonthSelector';
 import RecurringExpenseList from './RecurringExpenseList';
 import CategoryManagement from './CategoryManagement';
+import AnalyticsDashboard from './AnalyticsDashboard';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -120,6 +121,12 @@ const Dashboard = () => {
                   <p className="card-text">{expenses.length}</p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <div className="row mt-4">
+            <div className="col-md-12">
+              <AnalyticsDashboard selectedMonth={selectedMonth} />
             </div>
           </div>
 

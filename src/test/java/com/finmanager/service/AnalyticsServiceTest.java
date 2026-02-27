@@ -25,7 +25,12 @@ public class AnalyticsServiceTest {
     public void testGetCategoryBreakdown() {
         YearMonth month = YearMonth.now();
         
-        Map<String, Double> breakdown = analyticsService.getCategoryBreakdown(month);
+        Map<String, Object> response = analyticsService.getCategoryBreakdown(month);
+        assertNotNull(response);
+        assertTrue(response.containsKey("breakdown"));
+        assertTrue(response.containsKey("colors"));
+        
+        Map<String, Double> breakdown = (Map<String, Double>) response.get("breakdown");
         assertNotNull(breakdown);
     }
 
