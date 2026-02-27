@@ -93,7 +93,20 @@ public class CategoryService {
         }
     }
 
-    public void deleteCategory(Long id) {
+    public void deleteCategory(Long id) throws SQLException {
+        // Check if expenses exist for this category
+        String checkSql = "SELECT COUNT(*) as cnt FROM expenses WHERE category_id = ?";
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
+            
+            checkStmt.setLong(1, id);
+            try (ResultSet rs = checkStmt.executeQuery()) {
+                if (rs.next() && rs.getInt("cnt") > 0) {
+                    throw new SQLException("Cannot delete category with existing expenses. Move or delete expenses first.");
+                }
+            }
+        }
+
         String sql = "UPDATE categories SET active = 0 WHERE id = ?";
 
         try (Connection conn = DatabaseManager.getInstance().getConnection();
@@ -103,6 +116,7 @@ public class CategoryService {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+            throw e;
         }
     }
 
